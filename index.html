@@ -4,541 +4,71 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>헤럴드 관동점 | 주간 숙제 안내</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --primary: #4f46e5;
-    --primary-light: #818cf8;
-    --bg: #f8fafc;
-    --card-bg: #ffffff;
-    --text: #1e293b;
-    --text-light: #64748b;
-    --border: #e2e8f0;
-    --accent: #f59e0b;
-    --success: #22c55e;
-  }
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    -webkit-font-smoothing: antialiased;
-  }
-
-  /* 헤더 */
-  .header {
-    background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 100%);
-    color: white;
-    padding: 2rem 1.5rem 1.5rem;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .header::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0; right: 0;
-    height: 30px;
-    background: var(--bg);
-    border-radius: 30px 30px 0 0;
-  }
-  .header h1 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.25rem;
-    letter-spacing: -0.02em;
-  }
-  .header .subtitle {
-    font-size: 0.9rem;
-    opacity: 0.85;
-  }
-  .header .week-label {
-    display: inline-block;
-    background: rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 0.3rem 1rem;
-    margin-top: 0.75rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-  }
-
-  /* 통계 카드 */
-  .stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem;
-    padding: 1rem 1.5rem;
-    margin-top: -0.5rem;
-  }
-  .stat-box {
-    background: var(--card-bg);
-    border-radius: 12px;
-    padding: 1rem;
-    text-align: center;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  .stat-number {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: var(--primary);
-  }
-  .stat-label {
-    font-size: 0.75rem;
-    color: var(--text-light);
-    margin-top: 0.2rem;
-  }
-
-  /* 차트 */
-  .chart-section {
-    padding: 0 1.5rem;
-    margin: 1rem 0;
-  }
-  .chart-container {
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 1.25rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  .chart-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-    color: var(--text);
-  }
-
-  /* 섹션 */
-  .section {
-    padding: 0 1.5rem;
-    margin: 1.5rem 0;
-  }
-  .section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .section-icon {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 0.9rem;
-  }
-  .notion-icon { background: #e0e7ff; }
-  .cc-icon { background: #fef3c7; }
-
-  /* 반별 카드 (아코디언) */
-  .class-card {
-    background: var(--card-bg);
-    border-radius: 12px;
-    margin-bottom: 0.75rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-    overflow: hidden;
-    cursor: pointer;
-    transition: box-shadow 0.2s;
-  }
-  .class-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-  .class-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem 1.25rem;
-  }
-  .class-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-  .class-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-  .class-badge {
-    font-size: 0.7rem;
-    color: white;
-    padding: 0.15rem 0.5rem;
-    border-radius: 10px;
-    font-weight: 600;
-  }
-  .chevron {
-    font-size: 0.7rem;
-    color: var(--text-light);
-    transition: transform 0.3s;
-  }
-  .class-card.open .chevron { transform: rotate(180deg); }
-  .class-content {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease;
-    padding: 0 1.25rem;
-  }
-  .class-card.open .class-content {
-    max-height: 2000px;
-    padding: 0 1.25rem 1.25rem;
-  }
-
-  /* 숙제 아이템 */
-  .hw-item {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 1rem;
-    margin-bottom: 0.5rem;
-    border-left: 3px solid var(--primary);
-  }
-  .hw-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-  .hw-title {
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: var(--primary);
-  }
-  .hw-date {
-    font-size: 0.75rem;
-    color: var(--text-light);
-  }
-  .hw-body {
-    font-size: 0.85rem;
-    color: var(--text);
-    line-height: 1.7;
-    white-space: pre-line;
-  }
-  .no-hw {
-    text-align: center;
-    color: var(--text-light);
-    font-size: 0.85rem;
-    padding: 1rem 0;
-  }
-
-  /* 푸터 */
-  .footer {
-    text-align: center;
-    padding: 2rem 1.5rem;
-    color: var(--text-light);
-    font-size: 0.75rem;
-  }
-  .footer .academy {
-    font-weight: 600;
-    color: var(--text);
-    font-size: 0.85rem;
-    margin-bottom: 0.25rem;
-  }
-
-  /* 범례 */
-  .legend {
-    display: flex;
-    justify-content: center;
-    gap: 1.5rem;
-    margin: 0.5rem 0;
-    font-size: 0.75rem;
-    color: var(--text-light);
-  }
-  .legend-dot {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 4px;
-    vertical-align: middle;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+  .header { background: linear-gradient(135deg, #1e3a5f 0%, #2d5a8e 50%, #3b82f6 100%); color: white; padding: 32px 20px 28px; text-align: center; }
+  .header h1 { font-size: 24px; font-weight: 800; margin-bottom: 4px; }
+  .header .sub { font-size: 14px; opacity: 0.85; margin-top: 4px; }
+  .header .week { display: inline-block; background: rgba(255,255,255,0.2); padding: 6px 16px; border-radius: 20px; font-size: 14px; margin-top: 12px; }
+  .content { max-width: 640px; margin: 0 auto; padding: 16px; }
+  .section-title { font-size: 16px; font-weight: 700; color: #374151; margin: 16px 0 8px; }
+  .class-link { display: flex; justify-content: space-between; align-items: center; background: white; border-radius: 12px; padding: 16px; margin-bottom: 10px; text-decoration: none; color: #1a1a2e; box-shadow: 0 1px 3px rgba(0,0,0,0.08); transition: transform 0.15s; }
+  .class-link:active { transform: scale(0.98); }
+  .link-name { font-size: 16px; font-weight: 700; }
+  .link-badge { color: white; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 700; }
+  .footer { text-align: center; padding: 24px 16px 32px; color: #94a3b8; font-size: 12px; }
 </style>
 </head>
 <body>
-
-<!-- 헤더 -->
 <div class="header">
   <h1>📚 헤럴드 관동점</h1>
-  <div class="subtitle">주간 숙제 안내</div>
-  <div class="week-label">2026-03-02 ~ 2026-03-08</div>
+  <div class="sub">주간 숙제 안내</div>
+  <div class="week">2026-03-02 ~ 2026-03-08</div>
 </div>
-
-<!-- 통계 -->
-<div class="stats">
-  <div class="stat-box">
-    <div class="stat-number">9</div>
-    <div class="stat-label">전체 반</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-number" style="color: var(--success)">5</div>
-    <div class="stat-label">숙제 등록</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-number" style="color: var(--accent)">12</div>
-    <div class="stat-label">총 숙제 수</div>
-  </div>
-</div>
-
-<!-- 차트 -->
-<div class="chart-section">
-  <div class="chart-container">
-    <div class="chart-title">📊 반별 숙제 현황</div>
-    <div class="legend">
-      <span><span class="legend-dot" style="background:#6366f1"></span>Notion 반</span>
-      <span><span class="legend-dot" style="background:#f59e0b"></span>ClassCard 반</span>
-    </div>
-    <canvas id="hwChart" height="200"></canvas>
-  </div>
-</div>
-
-<!-- Notion 반 -->
-<div class="section">
-  <div class="section-title">
-    <span class="section-icon notion-icon">📖</span>
-    교재 숙제 (Notion)
-  </div>
+<div class="content">
+  <div class="section-title">반을 선택하세요</div>
   
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">예비중등1</span>
-                        <span class="class-badge" style="background:#22c55e">2건</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content">
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">월/화 RX2-1b, 문법, 보카</span>
-                            <span class="hw-date">2026-03-02</span>
-                        </div>
-                        <div class="hw-body">Rx2-2a<br>  1.  2과 단어 외우기<br>- 2과 해석 <br>- 클래스카드 2과 본문 → 암기, 리콜, 스피킹(집중듣기, 낭독)<br>VOCA<br>- 26과 단어 외우기<br>- 25과 암기, 리콜, 테스트<br>Grammar(월화)<br>- 텍스트 북:  ?<br>- 워크북 :  19~21쪽 풀기<br>- 클래스카드 문법:  ?</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">수/목 리딩 바이트, 듣기, 문법, 단어 </span>
-                            <span class="hw-date">2026-03-04</span>
-                        </div>
-                        <div class="hw-body">Rx2-1b<br> <br>VOCA<br>- ? 과 단어 외우기<br>- ? 과 암기 리콜 스펠 클카 하기<br>Grammar(수목)<br>- 텍스트 북:   ?<br>- 워크북 : ?<br>- 클래스카드 문법: ?<br>- 백지테스트 : ?<br>리딩바이트<br>- 4~5해석 책 문제도 풀기<br>듣기 교재<br>-  텍스트북 157 풀기<br>-  워크북 160,161 풀기<br>- 클래스카드 실전 모의고사 14회 단어  (암기, 리콜)<br>- 능률 중학 듣기 실전 15회 단어 외우기(뜻만)</div>
-                    </div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">중등1</span>
-                        <span class="class-badge" style="background:#22c55e">3건</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content">
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">그래머 인사이드/ rx 교재 /능보 </span>
-                            <span class="hw-date">2026-03-03</span>
-                        </div>
-                        <div class="hw-body">Rx2-2a<br>  1.   15과 단어 외우기<br>- 15과 해석 <br>- 15과 워크북 풀기<br>- 클래스카드 15과 본문 → 암기, 리콜, 스피킹(집중듣기, 낭독)<br>VOCA<br>- 41-42 과 단어 외우기<br>- 39-40 과 암기 리콜 하기<br>Grammar화<br>- 텍스트 북:  17<br>- 워크북 : 8~13<br>- 클카 그래머 : ?</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">바이트/ 그래머 / 듣기</span>
-                            <span class="hw-date">2026-03-05</span>
-                        </div>
-                        <div class="hw-body">Rx2-1b ?<br> <br>VOCA<br>- ? 과 단어 외우기<br>- ? 과 암기 리콜 스펠 클카 하기<br>Grammar 목<br>- 텍스트 북:  ?<br>- 워크북 : ?<br>- 클래스카드 문법:  <br>리딩바이트<br>- 3,4과 해석<br>듣기 교재(목)<br>-  텍스트북 113, 119, 120<br>- 클래스카드 실전 모의고사 7회 듣기 단어  (테스트)<br>- 능률 중학 듣기 실전 모의고사 7회 단어 외우기( 스펠까지 시험침 2번째)</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">내신</span>
-                            <span class="hw-date">2026-03-06</span>
-                        </div>
-                        <div class="hw-body">내신교재<br>- 2과 전체 단어 외우기 <br>- 텍스트북 54~61</div>
-                    </div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">중2</span>
-                        <span class="class-badge" style="background:#22c55e">3건</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content">
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">RX2-2a/ 능보/ 그래머 (2)</span>
-                            <span class="hw-date">2026-03-02</span>
-                        </div>
-                        <div class="hw-body">Rx3-2a<br>  1.  7과 단어 외우기(5과는 안했음 다음 시간에)<br>- 7과 해석 (5과는 안했음 다음 시간에)<br>- 워크북 7과 풀기<br>- 클래스카드 7과 단어 → 암기, 리콜, 테스트 <br>- 클래스카드 7과 본문 → 암기, 리콜, 스피킹(집중듣기, 낭독)<br>VOCA<br>- 48과 단어 외우기<br>- 47 과 암기, 리콜, 테스트<br>Grammar<br>- 텍스트북 :? 풀기<br>- 워크북 :  ?<br>- 클카 그래머 : ?</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">내신</span>
-                            <span class="hw-date">2026-03-04</span>
-                        </div>
-                        <div class="hw-body">- 클래스카드 2과 대화 이병민 <br>- 엑스텐 19쪽 빈칸 외우기 대화 <br>- 78-81쪽 까지 풀기</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">바이트/ 듣기 단어 외우기 / 그래머 </span>
-                            <span class="hw-date">2026-03-04</span>
-                        </div>
-                        <div class="hw-body">Rx2-2a<br> <br>VOCA<br>- ? 과 단어 외우기<br>- ? 과 암기 리콜 스펠 클카 하기<br>Grammar 수<br>- 텍스트 북: ? <br>- 워크북 : 17-19<br>- 클래스카드 문법: ? <br>리딩바이트 수<br>- 1~2 하기<br>듣기 교재 수<br>-  텍스트북 164, 166,167<br>- 클래스카드 실전 모의고사 12회 듣기 단어 외우기 <br>- 능률 중학 듣기 실전 11회 (암기, 리콜, 테스트)</div>
-                    </div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">E.중3</span>
-                        <span class="class-badge" style="background:#22c55e">3건</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content">
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">빠바, 천일문</span>
-                            <span class="hw-date">2026-03-02</span>
-                        </div>
-                        <div class="hw-body">능보<br>- ?<br>천일문(월,화)<br>- 본책 풀기 ?<br>- 본책 큐알 코드 듣기 <br>- 천일문 기본 문제집  : 40,41 페이지 풀기<br>빠바<br>- 9과 단어 전체 외우기(2번째)<br>- 9과 해석 프린트 1~3번 끊어 읽기, </div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">자이스토리/ 능보/ 천일문</span>
-                            <span class="hw-date">2026-03-04</span>
-                        </div>
-                        <div class="hw-body">능보 <br>- 20 외우기<br>영플립<br>- [실전모의독해] 고1 2023년 03월 모의고사 모두 풀기 (자이스토리 3회와 같음)<br>- [실전모의독해] 고1 2023년 03월 모의고사 17,18번 강의 듣기 (영필립 안에 문제 강의 듣기)<br>천일문<br>- 본책 풀기 ?<br>- 본책 큐알 코드 듣기 <br>- 천일문 기본 문제집  : 38,39 풀기<br>자이스토리 <br>- 2025년 4회 41~42번 분석하기 주어 동사 끊어 읽기</div>
-                    </div>
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">내신 삼문 / 율하/ 대청</span>
-                            <span class="hw-date">2026-03-06</span>
-                        </div>
-                        <div class="hw-body">YBM 박<br>- 클래스카드 2과 본문 2.4 암기, 리콜, 스펠, 테스트<br>- 벤비 90~92 1과 풀고 채점<br>- 222 4번째 빈칸 외우기<br>능룰 오<br>- 클래스카드 Lesson  2.11-2.12, 암기, 리콜, 스펠, 테스트<br>- 63 빈칸 외우기 진도 나간 부분까지<br>- 벤비 18-19쪽 까지 풀기<br>미래엔<br>- 클래스카드 2과 본문 2-4 암기, 리콜, 스펠, 테스트<br>- 벤비 85-88 풀고 채점<br>- 벤비 219 - 220  빈칸 외우기</div>
-                    </div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">고1</span>
-                        <span class="class-badge" style="background:#22c55e">1건</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content">
-                    <div class="hw-item">
-                        <div class="hw-header">
-                            <span class="hw-title">내신</span>
-                            <span class="hw-date">2026-03-03</span>
-                        </div>
-                        <div class="hw-body">  1.   2과 빈칸 외우기 (수업 부분 지문)<br>- 1과 본문 1~4번 클카 문장 하기( 암기, 리콜, 스펠, 테스트)<br>비상<br>- 평가문제집 29~31쪽 풀기<br>천재 감 <br>- 평가문제집 68-71</div>
-                    </div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">고2</span>
-                        <span class="class-badge" style="background:#94a3b8">없음</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content"><div class="no-hw">이번 주 등록된 숙제가 없습니다.</div></div>
-            </div>
+    <a href="예비중등1.html" class="class-link" style="border-left: 4px solid #6366f1;">
+      <div class="link-name">예비중등1</div>
+      <div class="link-badge" style="background:#6366f1;">2건</div>
+    </a>
+    <a href="중등1.html" class="class-link" style="border-left: 4px solid #3b82f6;">
+      <div class="link-name">중등1</div>
+      <div class="link-badge" style="background:#3b82f6;">3건</div>
+    </a>
+    <a href="중2.html" class="class-link" style="border-left: 4px solid #10b981;">
+      <div class="link-name">중2</div>
+      <div class="link-badge" style="background:#10b981;">3건</div>
+    </a>
+    <a href="E_중3.html" class="class-link" style="border-left: 4px solid #f59e0b;">
+      <div class="link-name">E.중3</div>
+      <div class="link-badge" style="background:#f59e0b;">3건</div>
+    </a>
+    <a href="고1.html" class="class-link" style="border-left: 4px solid #ef4444;">
+      <div class="link-name">고1</div>
+      <div class="link-badge" style="background:#ef4444;">1건</div>
+    </a>
+    <a href="고2.html" class="class-link" style="border-left: 4px solid #8b5cf6;">
+      <div class="link-name">고2</div>
+      <div class="link-badge" style="background:#94a3b8;">없음</div>
+    </a>
+    <a href="Think_1.html" class="class-link" style="border-left: 4px solid #f59e0b;">
+      <div class="link-name">Think 1</div>
+      <div class="link-badge" style="background:#94a3b8;">없음</div>
+    </a>
+    <a href="H_Bridge_2.html" class="class-link" style="border-left: 4px solid #14b8a6;">
+      <div class="link-name">H.Bridge 2</div>
+      <div class="link-badge" style="background:#94a3b8;">없음</div>
+    </a>
+    <a href="Adventure_2.html" class="class-link" style="border-left: 4px solid #ec4899;">
+      <div class="link-name">Adventure 2</div>
+      <div class="link-badge" style="background:#94a3b8;">없음</div>
+    </a>
 </div>
-
-<!-- ClassCard 반 -->
-<div class="section">
-  <div class="section-title">
-    <span class="section-icon cc-icon">🎯</span>
-    ClassCard 숙제
-  </div>
-  
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">Think 1</span>
-                        <span class="class-badge" style="background:#94a3b8">없음</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content"><div class="no-hw">이번 주 등록된 숙제가 없습니다.</div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">H.Bridge 2</span>
-                        <span class="class-badge" style="background:#94a3b8">없음</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content"><div class="no-hw">이번 주 등록된 숙제가 없습니다.</div></div>
-            </div>
-            <div class="class-card" onclick="toggleCard(this)">
-                <div class="class-header">
-                    <div class="class-info">
-                        <span class="class-name">Adventure 2</span>
-                        <span class="class-badge" style="background:#94a3b8">없음</span>
-                    </div>
-                    <span class="chevron">▼</span>
-                </div>
-                <div class="class-content"><div class="no-hw">이번 주 등록된 숙제가 없습니다.</div></div>
-            </div>
-</div>
-
-<!-- 푸터 -->
 <div class="footer">
-  <div class="academy">헤럴드 관동점 벤 티쳐</div>
-  <div>자동 생성: 2026년 03월 02일 18:20</div>
+  헤럴드 관동점 벤 티쳐<br>
+  자동 생성: 2026년 03월 02일 20:42
 </div>
-
-<script>
-// 아코디언 토글
-function toggleCard(el) {
-  el.classList.toggle('open');
-}
-
-// 차트 렌더링
-const ctx = document.getElementById('hwChart').getContext('2d');
-new Chart(ctx, {
-  type: 'bar',
-  data: {
-    labels: ["예비중등1", "중등1", "중2", "E.중3", "고1", "고2", "Think 1", "H.Bridge 2", "Adventure 2"],
-    datasets: [{
-      data: [2, 3, 3, 3, 1, 0, 0, 0, 0],
-      backgroundColor: ["#6366f1", "#6366f1", "#6366f1", "#6366f1", "#6366f1", "#6366f1", "#f59e0b", "#f59e0b", "#f59e0b"],
-      borderRadius: 8,
-      maxBarThickness: 40,
-    }]
-  },
-  options: {
-    responsive: true,
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        callbacks: {
-          label: function(context) {
-            return context.parsed.y + '건';
-          }
-        }
-      }
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: { stepSize: 1, font: { size: 11 } },
-        grid: { color: '#f1f5f9' }
-      },
-      x: {
-        ticks: { font: { size: 10 }, maxRotation: 45 },
-        grid: { display: false }
-      }
-    }
-  }
-});
-
-// 숙제가 있는 첫 번째 카드 자동 열기
-document.addEventListener('DOMContentLoaded', function() {
-  const cards = document.querySelectorAll('.class-card');
-  for (const card of cards) {
-    if (!card.querySelector('.no-hw')) {
-      card.classList.add('open');
-      break;
-    }
-  }
-});
-</script>
-
 </body>
 </html>
