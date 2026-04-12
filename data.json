@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-04-05 12:52",
+  "generated_at": "2026-04-12 13:00",
   "classes": [
     {
       "class_name": "예비중등1",
       "filename": "예비중등1.html",
       "url": "https://dahnjun-web.github.io/homework-page/예비중등1.html",
       "source": "notion",
-      "item_count": 3
+      "item_count": 2
     },
     {
       "class_name": "중등1",
@@ -34,7 +34,7 @@
       "filename": "고1.html",
       "url": "https://dahnjun-web.github.io/homework-page/고1.html",
       "source": "notion",
-      "item_count": 2
+      "item_count": 1
     },
     {
       "class_name": "고2",
